@@ -47,14 +47,15 @@ class Dormitory:
         return self.menu_list
 
 
-# 사용 예제
-date = '20210929'
-dormitory = Dormitory(date)
-a = dormitory.get_menu()
+if __name__ == "__main__":
+    # 사용 예제
+    date = '20210929'
+    dormitory = Dormitory(date)
+    a = dormitory.get_menu()
 
-# a를 json으로 변환해서 저장하는 코드
+    # a를 json으로 변환해서 저장하는 코드
 
-with open('dormitory.json', 'w', encoding='utf-8') as f:
-    json.dump(a, f, ensure_ascii=False, indent=4)
+    with open('dormitory.json', 'w', encoding='utf-8') as f:
+        json.dump(a, f, ensure_ascii=False, indent=4)
 
 
