@@ -6,9 +6,21 @@ import openai
 import os
 # from dotenv import load_dotenv
 import time
+import boto3
+import base64
+
 from custom_error import HolidayError, NetworkError
 from menu_example import dodam_lunch_1
 
+ENCRYPTED = os.environ['GPT_API_KEY']
+# Decrypt code should run once and variables stored outside of the function
+# handler so that these are decrypted once per container
+DECRYPTED = boto3.client('kms').decrypt(
+    CiphertextBlob=base64.b64decode(ENCRYPTED),
+    EncryptionContext={'LambdaFunctionName': os.environ['AWS_LAMBDA_FUNCTION_NAME']}
+)['Plaintext'].decode('utf-8')
+
+openai.api_key = DECRYPTED
 
 
 def practice_dodam(date:str):
@@ -18,6 +30,9 @@ def practice_dodam(date:str):
     soup = BeautifulSoup(res.content, "html.parser")
 
     if soup.find(text="오늘은 쉽니다."):
+        # logger.error(f"The date is holiday. {date}")
+        raise HolidayError(date)
+    elif soup.find(text="휴무"):
         # logger.error(f"The date is holiday. {date}")
         raise HolidayError(date)
 
