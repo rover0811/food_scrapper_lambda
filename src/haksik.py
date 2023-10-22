@@ -4,15 +4,27 @@ import json
 # import logging
 import openai
 import os
+import boto3
+import base64
+
 # from dotenv import load_dotenv
 import time
 from custom_error import HolidayError, NetworkError
 from menu_example import student_lunch_1
 
 
+ENCRYPTED = os.environ['GPT_API_KEY']
+# Decrypt code should run once and variables stored outside of the function
+# handler so that these are decrypted once per container
+DECRYPTED = boto3.client('kms').decrypt(
+    CiphertextBlob=base64.b64decode(ENCRYPTED),
+    EncryptionContext={'LambdaFunctionName': os.environ['AWS_LAMBDA_FUNCTION_NAME']}
+)['Plaintext'].decode('utf-8')
+
+
 # OpenAI API 인증
 # openai.api_key = os.environ.get("GPT_API_KEY")
-openai.api_key = "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"
+openai.api_key = DECRYPTED
 
 
 # # 로거 인스턴스 생성
@@ -46,6 +58,10 @@ def practice_student_restarant(date: str):
     if soup.find(text="오늘은 쉽니다."):
         # logger.error(f"The date is holiday. {date}")
         raise HolidayError(date)
+    elif "휴무" in res.text:
+        # logger.error(f"The date is holiday. {date}")
+        raise HolidayError(date)
+
 
     tr_list = soup.find_all('tr')
     menu_nm_dict = dict()

@@ -32,7 +32,7 @@ def practice_dodam(date:str):
     if soup.find(text="오늘은 쉽니다."):
         # logger.error(f"The date is holiday. {date}")
         raise HolidayError(date)
-    elif soup.find(text="휴무"):
+    elif "휴무" in res.text:
         # logger.error(f"The date is holiday. {date}")
         raise HolidayError(date)
 
